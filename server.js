@@ -1,10 +1,9 @@
 var express = require("express");
 var bodyParser = require("body-parser");
-var MongoClient = require("mongodb").MongoClient;
 var ObjectId = require("mongodb").ObjectId;
+var db = require("./db");
 
 var app = express();
-var db;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended:true }));
@@ -23,13 +22,12 @@ var userList = [
 
 // вернуть всех user
 app.get("/users", (req,res)=> {
-	db.collection("userList").find().toArray((err, docs)=>{
+	db.get().collection("userList").find().toArray((err, docs)=>{
 	  if(err){
 	    console.log(err);
 	    return res.sendStatus(500);
 	  }
 	  else {
-	  	console.log(docs);
 			res.send(docs);
 	  }
 	})
@@ -37,33 +35,26 @@ app.get("/users", (req,res)=> {
 
 // добавить юзера
 app.post("/users/add", (req,res)=>{
-	console.log("add");
 	var user = {
 		name: req.body.name
 	}
-  db.collection("userList").insertOne(user, function(err, results){
+  db.get().collection("userList").insertOne(user, function(err, results){
 	  if(err){
 	    console.log(err);
 	    return res.sendStatus(500);
-	  }
-	  else {
-	  	console.log(results);
+	  } else {
 			res.send(user);
 	  }
   });
-
-	console.dir(db);
 });
 
 // вернуть юзера по id
 app.post("/users/:id", (req,res)=>{
-  db.collection("userList").findOne({ _id: ObjectId(req.params.id) }, (err, doc)=>{
+  db.get().collection("userList").findOne({ _id: ObjectId(req.params.id) }, (err, doc)=>{
 	  if(err){
 	    console.log(err);
 	    return res.sendStatus(500);
-	  }
-	  else {
-	  	console.log(doc);
+	  } else {
 			res.send(doc);
 	  }
   });
@@ -71,7 +62,7 @@ app.post("/users/:id", (req,res)=>{
 
 // удалить юзера по id
 app.delete("/users/:id", (req,res)=>{
-  db.collection("userList").deleteOne(
+  db.get().collection("userList").deleteOne(
   	{ _id: ObjectId(req.params.id) },
   	(err, result)=>{
 		  if(err){
@@ -87,7 +78,7 @@ app.delete("/users/:id", (req,res)=>{
 // изменить имя юзера по id
 app.post("/users/:id/edit", (req,res)=>{
 	console.dir(req.body.name);
-  db.collection("userList").updateOne(
+  db.get().collection("userList").updateOne(
   	{ _id: ObjectId(req.params.id) },
   	{ $set: {name: req.body.name} },
   	(err, result)=>{
@@ -103,19 +94,15 @@ app.post("/users/:id/edit", (req,res)=>{
 
 // настройки монго
 let url = "mongodb://localhost:27017/";
-let mongoClient = new MongoClient(url, { useNewUrlParser: true });
 
 // подключение к монго
-mongoClient.connect(function(err, database){
+db.connect(url, function(err){
   if(err){
     console.log(err);
-  }
-  else {
+  } else {
     console.log('connected to '+ url);
-    db = database.db("myapi");
 		app.listen(3012, ()=>{
 			console.log("server start http://localhost:3012");
 		});
-		// db.close();
   }
 });
