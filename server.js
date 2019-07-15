@@ -1,15 +1,15 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var MongoClient = require("mongodb").MongoClient;
+var ObjectId = require("mongodb").ObjectId;
 
 var app = express();
 var db;
-var collection;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended:true }));
 
-var doctorList = [
+var userList = [
 	{
 		id: 1,
 		name: "один"
@@ -21,62 +21,91 @@ var doctorList = [
 ];
 
 
-
-app.get("/", (req,res)=> {
-	res.send(doctorList);
-});
-
-app.get("/:id", (req,res)=> {
-	var doctor = doctorList.find((doctor)=>{
-		return doctor.id === +req.params.id;
-	});
-	res.send(doctorList);
-});
-
-app.post("/add", (req,res)=>{
-	var doctor = {
-		name: req.body.name
-	}
-  collection.insertOne(doctor, function(err, results){
+// вернуть всех user
+app.get("/users", (req,res)=> {
+	db.collection("userList").find().toArray((err, docs)=>{
 	  if(err){
 	    console.log(err);
-	    res.sendStatus(500);
+	    return res.sendStatus(500);
+	  }
+	  else {
+	  	console.log(docs);
+			res.send(docs);
+	  }
+	})
+});
+
+// добавить юзера
+app.post("/users/add", (req,res)=>{
+	console.log("add");
+	var user = {
+		name: req.body.name
+	}
+  db.collection("userList").insertOne(user, function(err, results){
+	  if(err){
+	    console.log(err);
+	    return res.sendStatus(500);
 	  }
 	  else {
 	  	console.log(results);
-			res.send(doctor);
+			res.send(user);
 	  }
   });
 
 	console.dir(db);
-	// doctorList.push(doctor);
-	// res.send(doctorList);
-	db.collection("doctorList").insert(doctor, (err, result)=>{
-
-	})
 });
 
-app.post("/:id", (req,res)=>{
-	var doctor = doctorList.find((doctor)=>{
-		return doctor.id === +req.params.id
-	});
-	if(doctor) {
-		doctor.name = req.body.name;
-		res.sendStatus(200);
-	}
-	res.send(doctorList);
+// вернуть юзера по id
+app.post("/users/:id", (req,res)=>{
+  db.collection("userList").findOne({ _id: ObjectId(req.params.id) }, (err, doc)=>{
+	  if(err){
+	    console.log(err);
+	    return res.sendStatus(500);
+	  }
+	  else {
+	  	console.log(doc);
+			res.send(doc);
+	  }
+  });
 });
 
-app.post("/:id/del", (req,res)=>{
-	doctorList = doctorList.filter((doctor)=>{
-		return doctor.id !== +req.params.id
-	});
-	res.send(doctorList);
+// удалить юзера по id
+app.delete("/users/:id", (req,res)=>{
+  db.collection("userList").deleteOne(
+  	{ _id: ObjectId(req.params.id) },
+  	(err, result)=>{
+		  if(err){
+		    console.log(err);
+		    return res.sendStatus(500);
+		  } else {
+				return res.sendStatus(200);
+		  }
+		}
+	);
 });
 
+// изменить имя юзера по id
+app.post("/users/:id/edit", (req,res)=>{
+	console.dir(req.body.name);
+  db.collection("userList").updateOne(
+  	{ _id: ObjectId(req.params.id) },
+  	{ $set: {name: req.body.name} },
+  	(err, result)=>{
+		  if(err){
+		    console.log(err);
+		    return res.sendStatus(500);
+		  } else {
+				return res.sendStatus(200);
+		  }
+		}
+	);
+});
+
+// настройки монго
 let url = "mongodb://localhost:27017/";
 let mongoClient = new MongoClient(url, { useNewUrlParser: true });
 
+// подключение к монго
 mongoClient.connect(function(err, database){
   if(err){
     console.log(err);
@@ -84,9 +113,8 @@ mongoClient.connect(function(err, database){
   else {
     console.log('connected to '+ url);
     db = database.db("myapi");
-    collection = db.collection("doctorList");
 		app.listen(3012, ()=>{
-			console.log("server start");
+			console.log("server start http://localhost:3012");
 		});
 		// db.close();
   }
