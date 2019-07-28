@@ -1,4 +1,4 @@
-var Status = require('../models/user');
+var Status = require('../models/status');
 
 // показать всех
 exports.all = (req, res) => {
@@ -25,9 +25,9 @@ exports.findById = (req, res) => {
 }
 
 // создать
-exports.add = (req, res) => {
+exports.create = (req, res) => {
     var blankDoc = {}
-    Status.add(blankDoc, (err, doc)=>{
+    Status.create(blankDoc, (err, doc)=>{
         if(err) {
             console.log(err);
             return res.sendStatus(500);
@@ -39,7 +39,7 @@ exports.add = (req, res) => {
 
 // обновить
 exports.update = (req, res) => {
-    let newObj = res.body.status || {name: "update"};
+    let newObj = res.body.status || {name: "blank status"};
     Status.update(req.params.id, newObj, (err, result)=>{
         if(err){
             console.log(err);

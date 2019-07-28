@@ -1,4 +1,6 @@
 var User = require('../models/user');
+var randomName = require('../libs/randomName');
+
 
 // показать всех
 exports.all = (req, res) => {
@@ -24,12 +26,12 @@ exports.findById = (req, res) => {
     });
 }
 
-// добавить нового
-exports.add = (req, res) => {
+// создать
+exports.create = (req, res) => {
     var user = {
-        name: req.body.name || "default name"
+        name: req.body.name || randomName()
     }
-    User.add(user, (err, results)=>{
+    User.create(user, (err, results)=>{
         if(err) {
             console.log(err);
             return res.sendStatus(500);

@@ -16,7 +16,7 @@ exports.findById = (id, cb) => {
 }
 
 // создать
-exports.add = (status, cb) => {
+exports.create = (status, cb) => {
     db.get().collection("statusList").insertOne(status, (err, results)=>{
         status._id = results.insertedId;
         cb(err, status);

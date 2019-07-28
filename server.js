@@ -18,7 +18,7 @@ app.post("/user/all", userController.all);
 app.post("/user/get/:id", userController.findById);
 
 // добавить юзера
-app.post("/user/create", userController.add);
+app.post("/user/create", userController.create);
 
 // удалить юзера по id
 app.post("/user/del/:id", userController.del);
@@ -29,19 +29,19 @@ app.post("/user/edit/:id", userController.update);
 
 // STATUS
 // вернуть все статусы
-app.post("/status/all", userController.all);
+app.post("/status/all", statusController.all);
 
 // вернуть статус по id
-app.post("/status/get/:id", userController.findById);
+app.post("/status/get/:id", statusController.findById);
 
 // добавить статус
-app.post("/status/create", userController.add);
+app.post("/status/create", statusController.create);
 
 // удалить статус по id
-app.post("/status/del/:id", userController.del);
+app.post("/status/del/:id", statusController.del);
 
 // заменить статус по id
-app.post("/status/edit/:id", userController.update);
+app.post("/status/edit/:id", statusController.update);
 
 
 // MONGO

@@ -16,7 +16,7 @@ exports.findById = (id, cb) => {
 }
 
 // добавить нового
-exports.add = (user, cb) => {
+exports.create = (user, cb) => {
     db.get().collection("userList").insertOne(user, (err, results)=>{
         user._id = results.insertedId;
         cb(err, user);
@@ -43,4 +43,3 @@ exports.update = (id, newData, cb) => {
         }
     );
 }
-
